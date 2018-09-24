@@ -1,0 +1,44 @@
+From fc5c384012cc2911ee7d21d57f2b13b09ab00eb8 Mon Sep 17 00:00:00 2001
+From: Ali MJ Al-Nasrawy <alimjalnasrawy@gmail.com>
+Date: Sat, 15 Sep 2018 21:01:48 +0300
+Subject: [PATCH] mac80211: allow active scan on dfs channels
+
+---
+ scan.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/net/mac80211/scan.c b/net/mac80211/scan.c
+index ef2beca..6dc6705 100644
+--- a/net/mac80211/scan.c
++++ b/net/mac80211/scan.c
+@@ -661,8 +661,7 @@ static int __ieee80211_start_scan(struct ieee80211_sub_if_data *sdata,
+ 		/* We need to ensure power level is at max for scanning. */
+ 		ieee80211_hw_config(local, 0);
+ 
+-		if ((req->channels[0]->flags & (IEEE80211_CHAN_NO_IR |
+-						IEEE80211_CHAN_RADAR)) ||
++		if ((req->channels[0]->flags & IEEE80211_CHAN_NO_IR) ||
+ 		    !req->n_ssids) {
+ 			next_delay = IEEE80211_PASSIVE_CHANNEL_TIME;
+ 		} else {
+@@ -709,7 +708,7 @@ ieee80211_scan_get_channel_time(struct ieee80211_channel *chan)
+ 	 * TODO: channel switching also consumes quite some time,
+ 	 * add that delay as well to get a better estimation
+ 	 */
+-	if (chan->flags & (IEEE80211_CHAN_NO_IR | IEEE80211_CHAN_RADAR))
++	if (chan->flags & IEEE80211_CHAN_NO_IR)
+ 		return IEEE80211_PASSIVE_CHANNEL_TIME;
+ 	return IEEE80211_PROBE_DELAY + IEEE80211_CHANNEL_TIME;
+ }
+@@ -841,7 +840,7 @@ static void ieee80211_scan_state_set_channel(struct ieee80211_local *local,
+ 	 *
+ 	 * In any case, it is not necessary for a passive scan.
+ 	 */
+-	if ((chan->flags & (IEEE80211_CHAN_NO_IR | IEEE80211_CHAN_RADAR)) ||
++	if ((chan->flags & IEEE80211_CHAN_NO_IR) ||
+ 	    !scan_req->n_ssids) {
+ 		*next_delay = IEEE80211_PASSIVE_CHANNEL_TIME;
+ 		local->next_scan_state = SCAN_DECISION;
+-- 
+2.18.0
+
