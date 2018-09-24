@@ -1,0 +1,201 @@
+From d85b86ac5f8bc24c74d39c01bcb22e812d05ef2c Mon Sep 17 00:00:00 2001
+From: Ali MJ Al-Nasrawy <alimjalnasrawy@gmail.com>
+Date: Sat, 15 Sep 2018 00:59:02 +0300
+Subject: [PATCH] aggressive chanelling
+
+---
+ common-init.c | 164 +++++++++++++++++++++++++++++++++++++++++---------
+ hw.h          |   2 +-
+ 2 files changed, 138 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/net/wireless/ath/ath9k/common-init.c b/drivers/net/wireless/ath/ath9k/common-init.c
+index 8b4f7fd..e410900 100644
+--- a/drivers/net/wireless/ath/ath9k/common-init.c
++++ b/drivers/net/wireless/ath/ath9k/common-init.c
+@@ -59,33 +59,143 @@ static const struct ieee80211_channel ath9k_2ghz_chantable[] = {
+  * this static */
+ static const struct ieee80211_channel ath9k_5ghz_chantable[] = {
+ 	/* _We_ call this UNII 1 */
+-	CHAN5G(5180, 14), /* Channel 36 */
+-	CHAN5G(5200, 15), /* Channel 40 */
+-	CHAN5G(5220, 16), /* Channel 44 */
+-	CHAN5G(5240, 17), /* Channel 48 */
+-	/* _We_ call this UNII 2 */
+-	CHAN5G(5260, 18), /* Channel 52 */
+-	CHAN5G(5280, 19), /* Channel 56 */
+-	CHAN5G(5300, 20), /* Channel 60 */
+-	CHAN5G(5320, 21), /* Channel 64 */
+-	/* _We_ call this "Middle band" */
+-	CHAN5G(5500, 22), /* Channel 100 */
+-	CHAN5G(5520, 23), /* Channel 104 */
+-	CHAN5G(5540, 24), /* Channel 108 */
+-	CHAN5G(5560, 25), /* Channel 112 */
+-	CHAN5G(5580, 26), /* Channel 116 */
+-	CHAN5G(5600, 27), /* Channel 120 */
+-	CHAN5G(5620, 28), /* Channel 124 */
+-	CHAN5G(5640, 29), /* Channel 128 */
+-	CHAN5G(5660, 30), /* Channel 132 */
+-	CHAN5G(5680, 31), /* Channel 136 */
+-	CHAN5G(5700, 32), /* Channel 140 */
+-	/* _We_ call this UNII 3 */
+-	CHAN5G(5745, 33), /* Channel 149 */
+-	CHAN5G(5765, 34), /* Channel 153 */
+-	CHAN5G(5785, 35), /* Channel 157 */
+-	CHAN5G(5805, 36), /* Channel 161 */
+-	CHAN5G(5825, 37), /* Channel 165 */
++	CHAN5G(5160, 14), /* Channel 32 */
++	CHAN5G(5165, 15), /* Channel 33 */
++	CHAN5G(5170, 16), /* Channel 34 */
++	CHAN5G(5175, 17), /* Channel 35 */
++	CHAN5G(5180, 18), /* Channel 36 */
++	CHAN5G(5185, 19), /* Channel 37 */
++	CHAN5G(5190, 20), /* Channel 38 */
++	CHAN5G(5195, 21), /* Channel 39 */
++	CHAN5G(5200, 22), /* Channel 40 */
++	CHAN5G(5205, 23), /* Channel 41 */
++	CHAN5G(5210, 24), /* Channel 42 */
++	CHAN5G(5215, 25), /* Channel 43 */
++	CHAN5G(5220, 26), /* Channel 44 */
++	CHAN5G(5225, 27), /* Channel 45 */
++	CHAN5G(5230, 28), /* Channel 46 */
++	CHAN5G(5235, 29), /* Channel 47 */
++	CHAN5G(5240, 30), /* Channel 48 */
++	CHAN5G(5245, 31), /* Channel 49 */
++	CHAN5G(5250, 32), /* Channel 50 */
++	CHAN5G(5255, 33), /* Channel 51 */
++	CHAN5G(5260, 34), /* Channel 52 */
++	CHAN5G(5265, 35), /* Channel 53 */
++	CHAN5G(5270, 36), /* Channel 54 */
++	CHAN5G(5275, 37), /* Channel 55 */
++	CHAN5G(5280, 38), /* Channel 56 */
++	CHAN5G(5285, 39), /* Channel 57 */
++	CHAN5G(5290, 40), /* Channel 58 */
++	CHAN5G(5295, 41), /* Channel 59 */
++	CHAN5G(5300, 42), /* Channel 60 */
++	CHAN5G(5305, 43), /* Channel 61 */
++	CHAN5G(5310, 44), /* Channel 62 */
++	CHAN5G(5315, 45), /* Channel 63 */
++	CHAN5G(5320, 46), /* Channel 64 */
++	CHAN5G(5325, 47), /* Channel 65 */
++	CHAN5G(5330, 48), /* Channel 66 */
++	CHAN5G(5335, 49), /* Channel 67 */
++	CHAN5G(5340, 50), /* Channel 68 */
++	CHAN5G(5345, 51), /* Channel 69 */
++	CHAN5G(5350, 52), /* Channel 70 */
++	CHAN5G(5355, 53), /* Channel 71 */
++	CHAN5G(5360, 54), /* Channel 72 */
++	CHAN5G(5365, 55), /* Channel 73 */
++	CHAN5G(5370, 56), /* Channel 74 */
++	CHAN5G(5375, 57), /* Channel 75 */
++	CHAN5G(5380, 58), /* Channel 76 */
++	CHAN5G(5385, 59), /* Channel 77 */
++	CHAN5G(5390, 60), /* Channel 78 */
++	CHAN5G(5395, 61), /* Channel 79 */
++	CHAN5G(5400, 62), /* Channel 80 */
++	CHAN5G(5405, 63), /* Channel 81 */
++	CHAN5G(5410, 64), /* Channel 82 */
++	CHAN5G(5415, 65), /* Channel 83 */
++	CHAN5G(5420, 66), /* Channel 84 */
++	CHAN5G(5425, 67), /* Channel 85 */
++	CHAN5G(5430, 68), /* Channel 86 */
++	CHAN5G(5435, 69), /* Channel 87 */
++	CHAN5G(5440, 70), /* Channel 88 */
++	CHAN5G(5445, 71), /* Channel 89 */
++	CHAN5G(5450, 72), /* Channel 90 */
++	CHAN5G(5455, 73), /* Channel 91 */
++	CHAN5G(5460, 74), /* Channel 92 */
++	CHAN5G(5465, 75), /* Channel 93 */
++	CHAN5G(5470, 76), /* Channel 94 */
++	CHAN5G(5475, 77), /* Channel 95 */
++	CHAN5G(5480, 78), /* Channel 96 */
++	CHAN5G(5485, 79), /* Channel 97 */
++	CHAN5G(5490, 80), /* Channel 98 */
++	CHAN5G(5495, 81), /* Channel 99 */
++	CHAN5G(5500, 82), /* Channel 100 */
++	CHAN5G(5505, 83), /* Channel 101 */
++	CHAN5G(5510, 84), /* Channel 102 */
++	CHAN5G(5515, 85), /* Channel 103 */
++	CHAN5G(5520, 86), /* Channel 104 */
++	CHAN5G(5525, 87), /* Channel 105 */
++	CHAN5G(5530, 88), /* Channel 106 */
++	CHAN5G(5535, 89), /* Channel 107 */
++	CHAN5G(5540, 90), /* Channel 108 */
++	CHAN5G(5545, 91), /* Channel 109 */
++	CHAN5G(5550, 92), /* Channel 110 */
++	CHAN5G(5555, 93), /* Channel 111 */
++	CHAN5G(5560, 94), /* Channel 112 */
++	CHAN5G(5565, 95), /* Channel 113 */
++	CHAN5G(5570, 96), /* Channel 114 */
++	CHAN5G(5575, 97), /* Channel 115 */
++	CHAN5G(5580, 98), /* Channel 116 */
++	CHAN5G(5585, 99), /* Channel 117 */
++	CHAN5G(5590, 100), /* Channel 118 */
++	CHAN5G(5595, 101), /* Channel 119 */
++	CHAN5G(5600, 102), /* Channel 120 */
++	CHAN5G(5605, 103), /* Channel 121 */
++	CHAN5G(5610, 104), /* Channel 122 */
++	CHAN5G(5615, 105), /* Channel 123 */
++	CHAN5G(5620, 106), /* Channel 124 */
++	CHAN5G(5625, 107), /* Channel 125 */
++	CHAN5G(5630, 108), /* Channel 126 */
++	CHAN5G(5635, 109), /* Channel 127 */
++	CHAN5G(5640, 110), /* Channel 128 */
++	CHAN5G(5645, 111), /* Channel 129 */
++	CHAN5G(5650, 112), /* Channel 130 */
++	CHAN5G(5655, 113), /* Channel 131 */
++	CHAN5G(5660, 114), /* Channel 132 */
++	CHAN5G(5665, 115), /* Channel 133 */
++	CHAN5G(5670, 116), /* Channel 134 */
++	CHAN5G(5675, 117), /* Channel 135 */
++	CHAN5G(5680, 118), /* Channel 136 */
++	CHAN5G(5685, 119), /* Channel 137 */
++	CHAN5G(5690, 120), /* Channel 138 */
++	CHAN5G(5695, 121), /* Channel 139 */
++	CHAN5G(5700, 122), /* Channel 140 */
++	CHAN5G(5705, 123), /* Channel 141 */
++	CHAN5G(5710, 124), /* Channel 142 */
++	CHAN5G(5715, 125), /* Channel 143 */
++	CHAN5G(5720, 126), /* Channel 144 */
++	CHAN5G(5725, 127), /* Channel 145 */
++	CHAN5G(5730, 128), /* Channel 146 */
++	CHAN5G(5735, 129), /* Channel 147 */
++	CHAN5G(5740, 130), /* Channel 148 */
++	CHAN5G(5745, 131), /* Channel 149 */
++	CHAN5G(5750, 132), /* Channel 150 */
++	CHAN5G(5755, 133), /* Channel 151 */
++	CHAN5G(5760, 134), /* Channel 152 */
++	CHAN5G(5765, 135), /* Channel 153 */
++	CHAN5G(5770, 136), /* Channel 154 */
++	CHAN5G(5775, 137), /* Channel 155 */
++	CHAN5G(5780, 138), /* Channel 156 */
++	CHAN5G(5785, 139), /* Channel 157 */
++	CHAN5G(5790, 140), /* Channel 158 */
++	CHAN5G(5795, 141), /* Channel 159 */
++	CHAN5G(5800, 142), /* Channel 160 */
++	CHAN5G(5805, 143), /* Channel 161 */
++	CHAN5G(5810, 144), /* Channel 162 */
++	CHAN5G(5815, 145), /* Channel 163 */
++	CHAN5G(5820, 146), /* Channel 164 */
++	CHAN5G(5825, 147), /* Channel 165 */
++	CHAN5G(5830, 148), /* Channel 166 */
++	CHAN5G(5835, 149), /* Channel 167 */
++	CHAN5G(5840, 150), /* Channel 168 */
+ };
+ 
+ /* Atheros hardware rate code addition for short premble */
+diff --git a/drivers/net/wireless/ath/ath9k/hw.h b/drivers/net/wireless/ath/ath9k/hw.h
+index d88f380..474dd5f 100644
+--- a/drivers/net/wireless/ath/ath9k/hw.h
++++ b/drivers/net/wireless/ath/ath9k/hw.h
+@@ -74,7 +74,7 @@
+ 
+ #define ATH9K_RSSI_BAD			-128
+ 
+-#define ATH9K_NUM_CHANNELS	38
++#define ATH9K_NUM_CHANNELS	151
+ 
+ /* Register read/write primitives */
+ #define REG_WRITE(_ah, _reg, _val) \
+-- 
+2.18.0
+
