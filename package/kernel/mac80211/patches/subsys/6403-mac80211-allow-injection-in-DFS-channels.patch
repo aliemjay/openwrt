@@ -1,0 +1,39 @@
+From 3f5ae3ad362ead9bf2b4d5ab6535d6188cc0ebb3 Mon Sep 17 00:00:00 2001
+From: Ali MJ Al-Nasrawy <alimjalnasrawy@gmail.com>
+Date: Mon, 2 Sep 2019 20:33:27 +0300
+Subject: [PATCH] mac80211: allow injection in DFS channels
+
+---
+ net/mac80211/tx.c | 17 +++--------------
+ 1 file changed, 3 insertions(+), 14 deletions(-)
+
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -2292,24 +2292,13 @@ netdev_tx_t ieee80211_monitor_start_xmit
+ 		goto fail_rcu;
+ 
+ 	/*
+-	 * Frame injection is not allowed if beaconing is not allowed
+-	 * or if we need radar detection. Beaconing is usually not allowed when
+-	 * the mode or operation (Adhoc, AP, Mesh) does not support DFS.
+-	 * Passive scan is also used in world regulatory domains where
+-	 * your country is not known and as such it should be treated as
+-	 * NO TX unless the channel is explicitly allowed in which case
+-	 * your current regulatory domain would not have the passive scan
+-	 * flag.
+-	 *
+-	 * Since AP mode uses monitor interfaces to inject/TX management
+-	 * frames we can make AP mode the exception to this rule once it
+-	 * supports radar detection as its implementation can deal with
+-	 * radar detection by itself. We can do that later by adding a
+-	 * monitor flag interfaces used for AP support.
++	 * Injection is ok on DFS channels
+ 	 */
++	/*
+ 	if (!cfg80211_reg_can_beacon(local->hw.wiphy, chandef,
+ 				     sdata->vif.type))
+ 		goto fail_rcu;
++	*/
+ 
+ 	info->band = chandef->chan->band;
+ 
