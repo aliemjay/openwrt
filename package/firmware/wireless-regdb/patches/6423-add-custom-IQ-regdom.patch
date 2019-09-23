@@ -1,0 +1,26 @@
+From af9fab93e3699155ba022fac8b52123f477263fa Mon Sep 17 00:00:00 2001
+From: Ali MJ Al-Nasrawy <alimjalnasrawy@gmail.com>
+Date: Sat, 15 Sep 2018 21:28:15 +0300
+Subject: [PATCH] add custom IQ regdom
+
+---
+ db.txt | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/db.txt b/db.txt
+index 75dc0a3..1a0f39e 100644
+--- a/db.txt
++++ b/db.txt
+@@ -1334,3 +1334,9 @@ country ZW: DFS-ETSI
+ 	(5250 - 5330 @ 80), (20), DFS, AUTO-BW
+ 	(5490 - 5710 @ 160), (27), DFS
+ 
++country IQ:
++	(2402 - 2482 @ 40), (30)
++	(5170 - 5250 @ 80), (30), AUTO-BW
++	(5250 - 5330 @ 80), (30), DFS, AUTO-BW
++	(5490 - 5730 @ 160), (30), DFS
++	(5730 - 5850 @ 80), (30)
+-- 
+2.18.0
+
