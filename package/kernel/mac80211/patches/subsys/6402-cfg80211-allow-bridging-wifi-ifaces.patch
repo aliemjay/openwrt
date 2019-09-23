@@ -1,0 +1,38 @@
+From a3233a294b6098020dc4da85b2ffdcbd530ee93b Mon Sep 17 00:00:00 2001
+From: Ali MJ Al-Nasrawy <alimjalnasrawy@gmail.com>
+Date: Mon, 2 Sep 2019 20:31:10 +0300
+Subject: [PATCH 1/2] cfg80211: allow bridging wifi ifaces
+
+---
+ net/wireless/core.c | 3 +++
+ net/wireless/util.c | 3 ++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+--- a/net/wireless/core.c
++++ b/net/wireless/core.c
+@@ -1232,10 +1232,13 @@ static int cfg80211_netdev_notifier_call
+ 		/* allow mac80211 to determine the timeout */
+ 		wdev->ps_timeout = -1;
+ 
++		/* allow bridging wifi ifaces */
++		/*
+ 		if ((wdev->iftype == NL80211_IFTYPE_STATION ||
+ 		     wdev->iftype == NL80211_IFTYPE_P2P_CLIENT ||
+ 		     wdev->iftype == NL80211_IFTYPE_ADHOC) && !wdev->use_4addr)
+ 			dev->priv_flags |= IFF_DONT_BRIDGE;
++		*/
+ 
+ 		INIT_WORK(&wdev->disconnect_wk, cfg80211_autodisconnect_wk);
+ 
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -953,7 +953,8 @@ int cfg80211_change_iface(struct cfg8021
+ 		case NL80211_IFTYPE_OCB:
+ 		case NL80211_IFTYPE_P2P_CLIENT:
+ 		case NL80211_IFTYPE_ADHOC:
+-			dev->priv_flags |= IFF_DONT_BRIDGE;
++			/* bridging is also ok */
++			/* dev->priv_flags |= IFF_DONT_BRIDGE; */
+ 			break;
+ 		case NL80211_IFTYPE_P2P_GO:
+ 		case NL80211_IFTYPE_AP:
