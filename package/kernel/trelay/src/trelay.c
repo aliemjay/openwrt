@@ -31,24 +31,28 @@ struct trelay {
 	struct list_head list;
 	struct net_device *dev1, *dev2;
 	struct dentry *debugfs;
+	u8 tag_8021d;
 	int to_remove;
 	char name[];
 };
 
 rx_handler_result_t trelay_handle_frame(struct sk_buff **pskb)
 {
-	struct net_device *dev;
+	struct trelay *tr;
 	struct sk_buff *skb = *pskb;
 
-	dev = rcu_dereference(skb->dev->rx_handler_data);
-	if (!dev)
+	tr = rcu_dereference(skb->dev->rx_handler_data);
+	if (!tr)
 		return RX_HANDLER_PASS;
 
 	if (skb->protocol == htons(ETH_P_PAE))
 		return RX_HANDLER_PASS;
 
+	if (tr->tag_8021d <= 7)
+		skb->priority = 256 + tr->tag_8021d;
+
 	skb_push(skb, ETH_HLEN);
-	skb->dev = dev;
+	skb->dev = (skb->dev == tr->dev1)? tr->dev2: tr->dev1;
 	skb_forward_csum(skb);
 	dev_queue_xmit(skb);
 
@@ -171,11 +175,16 @@ static int trelay_do_add(char *name, char *devn1, char *devn2)
 	if (!dev1 || !dev2)
 		goto out;
 
-	ret = netdev_rx_handler_register(dev1, trelay_handle_frame, dev2);
+	strcpy(tr->name, name);
+	tr->dev1 = dev1;
+	tr->dev2 = dev2;
+	tr->tag_8021d = 255;
+
+	ret = netdev_rx_handler_register(dev1, trelay_handle_frame, tr);
 	if (ret < 0)
 		goto out;
 
-	ret = netdev_rx_handler_register(dev2, trelay_handle_frame, dev1);
+	ret = netdev_rx_handler_register(dev2, trelay_handle_frame, tr);
 	if (ret < 0) {
 		netdev_rx_handler_unregister(dev1);
 		goto out;
@@ -184,15 +193,12 @@ static int trelay_do_add(char *name, char *devn1, char *devn2)
 	dev_hold(dev1);
 	dev_hold(dev2);
 
-	strcpy(tr->name, name);
-	tr->dev1 = dev1;
-	tr->dev2 = dev2;
 	list_add_tail(&tr->list, &trelay_devs);
-
 	trelay_log(KERN_INFO, tr, "started");
 
 	tr->debugfs = debugfs_create_dir(name, debugfs_dir);
 	debugfs_create_file("remove", S_IWUSR, tr->debugfs, tr, &fops_remove);
+	debugfs_create_u8("tag_8021d", S_IRWXU, tr->debugfs, &tr->tag_8021d);
 	ret = 0;
 
 out:
