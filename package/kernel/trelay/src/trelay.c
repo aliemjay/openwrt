@@ -48,7 +48,10 @@ rx_handler_result_t trelay_handle_frame(struct sk_buff **pskb)
 	if (skb->protocol == htons(ETH_P_PAE))
 		return RX_HANDLER_PASS;
 
-	if (tr->tag_8021d <= 7)
+	/* priority logic */
+	if (skb->protocol == htons(ETH_P_PPP_DISC))
+		skb->priority = 256 + 6;
+	else if (tr->tag_8021d <= 7)
 		skb->priority = 256 + tr->tag_8021d;
 
 	skb_push(skb, ETH_HLEN);
